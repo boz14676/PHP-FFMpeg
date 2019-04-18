@@ -110,6 +110,32 @@ abstract class AbstractVideo extends Audio
     }
 
     /**
+     * @param $command
+     * @param $outFilepath
+     * @return $this
+     */
+    public function saveOrigin($command, $outFilepath)
+    {
+        $failure = null;
+
+        $passCommands = collect($this->basePartOfCommand());
+
+        $passCommands = $passCommands->merge(explode(' ', $command))->push($outFilepath);
+
+        try {
+            $this->driver->command($passCommands->all());
+        } catch (ExecutionFailureException $e) {
+            $failure = $e;
+        }
+
+        if (null !== $failure) {
+            throw new RuntimeException('Encoding failed', $failure->getCode(), $failure);
+        }
+
+        return $this;
+    }
+
+    /**
      * NOTE: This method is different to the Audio's one, because Video is using passes.
      * @inheritDoc
      */
