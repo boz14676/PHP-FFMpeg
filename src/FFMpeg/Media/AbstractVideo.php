@@ -110,17 +110,19 @@ abstract class AbstractVideo extends Audio
     }
 
     /**
-     * @param $command
-     * @param $outFilepath
+     * @param mixed $command
+     * @param string $outFilepath
      * @return $this
      */
-    public function saveOrigin($command, $outFilepath)
+    public function saveOrigin($command, string $outFilepath)
     {
         $failure = null;
 
         $passCommands = collect($this->basePartOfCommand());
 
-        $passCommands = $passCommands->merge(explode(' ', $command))->push($outFilepath);
+        $passCommands = $passCommands
+            ->merge(is_array($command) ? $command : explode(' ', $command))
+            ->push($outFilepath);
 
         try {
             $this->driver->command($passCommands->all());
