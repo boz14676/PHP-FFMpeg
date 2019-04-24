@@ -112,20 +112,29 @@ abstract class AbstractVideo extends Audio
     /**
      * @param mixed $command
      * @param string $outFilepath
+     * @param mixed $prfxCmd
      * @return $this
      */
-    public function saveOrigin($command, string $outFilepath)
+    public function saveOrigin($command, string $outFilepath, $prfxCmd = [])
     {
         $failure = null;
 
-        $passCommands = collect($this->basePartOfCommand());
+        $passCommands = $this->basePartOfCommand();
 
-        $passCommands = $passCommands
-            ->merge(is_array($command) ? $command : explode(' ', $command))
-            ->push($outFilepath);
+        if ($prfxCmd) {
+            $prfxCmd = is_array($prfxCmd) ? $prfxCmd : explode(' ', $prfxCmd);
+            $passCommands = array_merge($prfxCmd, $passCommands);
+        }
+
+        if ($command) {
+            $command = is_array($command) ? $command : explode(' ', $command);
+            $passCommands = array_merge($passCommands, $command);
+        }
+
+        array_push($passCommands, $outFilepath);
 
         try {
-            $this->driver->command($passCommands->all());
+            $this->driver->command($passCommands);
         } catch (ExecutionFailureException $e) {
             $failure = $e;
         }
